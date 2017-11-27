@@ -7,3 +7,4 @@ ECE 5725 Final Project
 
 This script performs hotword detection using Snowboy.
 """
+
