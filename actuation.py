@@ -24,11 +24,13 @@ if __name__ == "__main__":
   line = ""
   while line != "QUIT":
     line = f.readline().strip()
-    if line == "BUTTON1":
+    if line == "0": # cancel
+      pass
+    elif line == "1": # espresso
       button.set_speed(-1)
       time.sleep(1000)
       button.set_speed(0)
-    elif line == "BUTTON2":
+    elif line == "2": # large
       button.set_speed(1)
       time.sleep(1000)
       button.set_speed(0)
