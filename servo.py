@@ -26,7 +26,7 @@ class Servo():
   # -1 to 1
   def set_speed(self, speed):
     if not self.stopped:
-      dc = (speed * 0.2 + 1.5) / 20.0 * 100.0
+      dc = (speed + 1.5) / 20.0 * 100.0
       self.pwm.ChangeDutyCycle(dc)
       self.last_dc = dc
 
