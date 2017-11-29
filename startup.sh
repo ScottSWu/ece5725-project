@@ -16,11 +16,5 @@ fi
 dd if=sb-sr.fifo iflag=nonblock of=/dev/null
 dd if=sr-ac.fifo iflag=nonblock of=/dev/null
 
-# Start snowboy
-./snowboy.py sb-sr.fifo &
+python snowboy.py snowboy/alexa.umdl | python phrase-recognition.py phrases/model.pkl | python actuation.py sr-ac.fifo
 
-# Start speech recognition
-./speech-recognition.py sb-sr.fifo sr-ac.fifo &
-
-# Start actuation
-./actuation.py sr-ac.fifo &

@@ -37,7 +37,7 @@ HALF_BIT_WIDTH = BIT_WIDTH / 2
 def le(data):
   value = 0
   for i in range(len(data)):
-    value += data[i] << (8 * i)
+    value += ord(data[i]) << (8 * i)
 
   if value >= HALF_BIT_WIDTH:
     value = value - BIT_WIDTH
@@ -96,44 +96,45 @@ def processFrequency(data):
   return flat
 
 if __name__ == "__main__":
-  if len(sys.argv) < 4:
-    print("Usage: python {} <model.pkl> <sb-sr.fifo> <sr-ac.fifo>".format(sys.argv[0]))
+  if len(sys.argv) < 2:
+    print("Usage: python {} <model.pkl>".format(sys.argv[0]))
     sys.exit(0)
 
   lreg = joblib.load(sys.argv[1])
-  fsb = open(sys.argv[2], 'r')
-  fac = open(sys.argv[3], 'w')
 
   p = pyaudio.PyAudio()
-  stream = p.open(format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHECK_FRAMES)
+  stream = p.open(format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True,
+      frames_per_buffer=CHECK_FRAMES, input_device_index=2)
 
   line = ""
   while line != "QUIT":
-    line = fsb.readline().strip()
+    line = sys.stdin.readline().strip()
     if line == "HOTWORD":
-      print("Listening for phrase...")
+      sys.stderr.write("Listening for phrase...\n")
 
       # Listen for at most 3 seconds
       frames = []
       chunks = 0
+      chunk_size = 1024
       last = 0
-      chunks_per_second = float(SAMPLE_RATE) / float(CHECK_FRAMES)
+      chunks_per_second = float(SAMPLE_RATE) / float(chunk_size)
 
       while chunks < chunks_per_second * 3 and (len(frames) == 0 or chunks - last < chunks_per_second):
-        data = convert(stream.read(CHECK_FRAMES))
-        if isActive(data):
-          frames.extend(data)
-          last = chunks
+        try:
+          data = convert(stream.read(chunk_size))
+          if isActive(data):
+            frames.extend(data)
+            last = chunks
 
-        chunks += 1
+          chunks += 1
+        except:
+          pass
 
-      print("End listning for phrase")
+      sys.stderr.write("End listning for phrase\n")
       if len(frames) / chunks_per_second > 0.5:
         normalized = processFrequency(frames)
         z = lreg.predict([normalized])
-        print("Detected", z)
-        fac.write("{}\n".format(z[0]))
-        fac.flush()
+        sys.stderr.write("Detected {}\n".format(z))
+        sys.stdout.write("{}\n".format(z[0]))
+        sys.stdout.flush()
 
-  fsb.close()
-  fac.close()
