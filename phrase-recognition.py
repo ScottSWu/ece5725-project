@@ -8,12 +8,45 @@ ECE 5725 Final Project
 This script performs phrase recognition using a pre-trained model.
 """
 
+import math
+import numpy as np
+from numpy.fft import fft
 import pyaudio
 import sys
 from sklearn.externals import joblib
 
 SAMPLE_RATE = 44100
+SAMPLE_FREQ = 44100
 CHECK_FRAMES = 1024
+
+AMPLITUDE_THRESHOLD = 0.01
+THRESHOLD_FRACTION = 0.1
+SAMPLE_WIDTH = 2
+ACTIVITY_THRESHOLD = AMPLITUDE_THRESHOLD * math.pow(2, SAMPLE_WIDTH * 8 - 1)
+THRESHOLD_FRAMES = int(THRESHOLD_FRACTION * CHECK_FRAMES)
+
+VOICE_MIN = 100
+VOICE_MAX = 3000
+FREQUENCY_MIN = int(math.floor(VOICE_MIN / (float(SAMPLE_FREQ) / CHECK_FRAMES)))
+FREQUENCY_MAX = int(math.ceil(VOICE_MAX / (float(SAMPLE_FREQ) / CHECK_FRAMES)))
+
+BIT_WIDTH = 1 << (SAMPLE_WIDTH * 8)
+HALF_BIT_WIDTH = BIT_WIDTH / 2
+
+# Convert LE string to number
+def le(data):
+  value = 0
+  for i in range(len(data)):
+    value += ord(data[i]) << (8 * i)
+
+  if value >= HALF_BIT_WIDTH:
+    value = value - BIT_WIDTH
+
+  return value
+
+# Convert LE string to array
+def convert(chunk):
+  return [le(chunk[i:i+SAMPLE_WIDTH]) for i in range(0, len(chunk), SAMPLE_WIDTH)]
 
 # Check if the section satisfies the activity threshold
 def isActive(data):
@@ -63,39 +96,45 @@ def processFrequency(data):
   return flat
 
 if __name__ == "__main__":
-  if len(sys.argv) < 4:
-    print("Usage: python {} <model.pkl> <sb-sr.fifo> <sr-ac.fifo>".format(sys.argv[0]))
+  if len(sys.argv) < 2:
+    print("Usage: python {} <model.pkl>".format(sys.argv[0]))
     sys.exit(0)
 
   lreg = joblib.load(sys.argv[1])
-  fsb = open(sys.argv[2], 'r')
-  fac = open(sys.argv[3], 'w')
 
   p = pyaudio.PyAudio()
-  stream = p.open(format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHECK_FRAMES)
+  stream = p.open(format=pyaudio.paInt16, channels=1, rate=SAMPLE_RATE, input=True,
+      frames_per_buffer=CHECK_FRAMES, input_device_index=2)
 
   line = ""
   while line != "QUIT":
-    line = fsb.readline().strip()
+    line = sys.stdin.readline().strip()
     if line == "HOTWORD":
+      sys.stderr.write("Listening for phrase...\n")
+
       # Listen for at most 3 seconds
       frames = []
       chunks = 0
+      chunk_size = 1024
       last = 0
-      chunks_per_second = float(SAMPLE_RATE) / float(CHECK_FRAMES)
-      while chunks < chunks_per_second * 3 or (len(frames) > 0 and chunks - last > chunks_per_second):
-        data = stream.read(CHUNK)
-        if isActive(data):
-          frames.extend(data)
-          last = chunks
+      chunks_per_second = float(SAMPLE_RATE) / float(chunk_size)
 
-        chunks += 1
+      while chunks < chunks_per_second * 3 and (len(frames) == 0 or chunks - last < chunks_per_second):
+        try:
+          data = convert(stream.read(chunk_size))
+          if isActive(data):
+            frames.extend(data)
+            last = chunks
 
+          chunks += 1
+        except:
+          pass
+
+      sys.stderr.write("End listning for phrase\n")
       if len(frames) / chunks_per_second > 0.5:
         normalized = processFrequency(frames)
         z = lreg.predict([normalized])
-        print("Detected", z)
-        fac.write("{}\n".format(z[0]))
+        sys.stderr.write("Detected {}\n".format(z))
+        sys.stdout.write("{}\n".format(z[0]))
+        sys.stdout.flush()
 
-  fsb.close()
-  fac.close()
