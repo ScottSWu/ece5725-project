@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Voice-Enabled Espresso Maker">
+  <meta name="author" content="cb674_ssw74">
+  <title>Voice-Enabled Espresso Maker</title>
+  <link href="./css/bootstrap.min.css" rel="stylesheet">
+  <link href="./css/main.css" rel="stylesheet">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">Espresso Maker</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbars">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Home<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#overview">Overview</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#hardware">Hardware Design</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#software">Software Design</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#gallary">Gallary</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#info">Contact Info</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <main role="main">
+    <div class="cover-header">
+      <div class="container">
+        <h1 class="display-3">Voice-Enabled Espresso Maker</h1>
+        <h4>ECE 5725 Final Project - Scott Wu, Charles Bai</h4>
+      </div>
+    </div>
+    <header class="anchor" id="overview">
+      <h1>Overview</h1>
+    </header>
+    <div class="container">
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="overview" width="240" height="240" />
+        </div>
+        <div class="col-md-8">
+          <table style="height: 200px;">
+            <tbody>
+              <tr>
+                <td class="align-middle">
+                  <h4>
+                    Aim to build a voice-controlled coffee machine "Aron" which is able
+                    to make coffee based on real time voice input. RaspberryPi and
+                    Nespresso Mini Coffee Machine are the main hardware parts of the
+                    system. Snowboy is the main software part of the system.
+                  </h4>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <header class="anchor" id="hardware">
+      <h1>Hardware Design</h1>
+    </header>
+    <div class="container">
+      <div class="row mt-4">
+        <div class="col-md-8">
+          <h2>Respberry Pi</h2>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-8">
+          <h2>Coffee Machine & Add-on</h2>
+          <p>
+            The machine we are targeting is the Nespresso Essenza Mini.
+            Although this is our ideal device, we would like our project to
+            work on similar devices as well. We print an add-on holder that fits
+            on top of the Espresso Maker that can press the buttons. This add-on
+            fits snugly over the top of the machine, and comes with the
+            appropriate mechanisms to use the device.
+          </p>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-8">
+          <h2>Servo</h2>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+      </div>
+    </div>
+    <hr />
+    <header class="anchor" id="software">
+      <h1>Software Design</h1>
+    </header>
+    <div class="container">
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-8">
+          <h2>Snowboy</h2>
+          <p>
+            We use Snowboy Hotword Detection powered by Kitt.ai to
+            implement hotword recognition. Hotword recognition differs slightly
+            from speech recognition because the recognizer must constantly be
+            listening for the hotword. The Snowboy Hotword Detection framework
+            allows us to recognize hotwords on the Raspberry Pi - no internet
+            connection necessary. Since their software is proprietary, we must
+            train our own hotwords on their website online.
+          </p>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h2>Speech Detection</h2>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h2>Actuation</h2>
+          <p>
+            All our actuators are binary actuators (must be in one of two
+            states), which means other than firing the actuators in the
+            correct order, we do not need any precise timing, since the
+            Raspberry Pi offers hardware PWM. Therefore, we use Python
+            and the standard RPi.GPIO library to perform actuation of the
+            device. We implement some error checking and safety features in
+            this program to protect the servo.
+          </p>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h2>Communication</h2>
+          <p>
+            The Hotword detection program and Actuation program communicate
+            through a FIFO queue. As in Lab 3, we have a script to setup and
+            start the two programs in the background. This script executes on
+            boot.
+          </p>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <header class="anchor" id="gallary">
+      <h1>Gallary</h1>
+    </header>
+    <div class="container">
+      <div class="row mt-4">
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+      </div>
+    </div>
+    <hr />
+    <header class="anchor" id="result">
+      <h1>Result</h1>
+    </header>
+    <div class="container">
+      <div class="row mt-4">
+        <div class="col-md-8">
+          <h2>Result</h2>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+        </div>
+        <div class="col-md-8">
+          <h2>Future Work</h2>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+      </div>
+    </div>
+    <hr />
+    <header class="anchor" id="info">
+      <h1>Contact Info</h1>
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 text-center">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+          <h3>Scott Wu</h3>
+          <h4>ssw74</h4>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+        <div class="col-md-6 text-center">
+          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+          <h3>Charles Bai</h3>
+          <h4>cb674</h4>
+          <p>
+            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
+            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
+            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+            nibh, ut fermentum massa justo sit amet risus.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+
+  <script src="./js/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script>
+    window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery.min.js"><\/script>')
+  </script>
+  <script src="./js/bootstrap.min.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+.cover-header {
+  padding: 6rem 1rem;
+  margin: 3rem auto 0;
+  background-color: #e9ecef;
+}
+
+.anchor {
+  padding-top: 5rem;
+  margin: -3rem auto 3rem;
+  text-align: center;
+}
+
+hr {
+  display: block;
+  unicode-bidi: isolate;
+  -webkit-margin-before: 3em;
+  -webkit-margin-start: auto;
+  -webkit-margin-end: auto;
+  overflow: hidden;
+  border-style: inset;
+  border-width: 1px;
+  width: 75%;
+}
