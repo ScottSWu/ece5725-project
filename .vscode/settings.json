@@ -1,0 +1,10 @@
+{
+  "editor.rulers": [
+    80
+  ],
+  "editor.quickSuggestions": {
+    "other": false,
+    "comments": false,
+    "strings": false
+  }
+}

@@ -32,7 +32,10 @@
           <a class="nav-link" href="#software">Software Design</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#gallary">Gallary</a>
+          <a class="nav-link" href="#gallery">Gallery</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#bill">Bill of Materials</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#info">Contact Info</a>
@@ -45,7 +48,7 @@
     <div class="cover-header">
       <div class="container">
         <h1 class="display-3">Voice-Enabled Espresso Maker</h1>
-        <h4>ECE 5725 Final Project - Scott Wu, Charles Bai</h4>
+        <h4>ECE 5725 Final Project - Scott Wu (ssw74), Charles Bai (cb674)</h4>
       </div>
     </div>
     <header class="anchor" id="overview">
@@ -62,11 +65,13 @@
               <tr>
                 <td class="align-middle">
                   <h4>
-                    Aim to build a voice-controlled coffee machine "Aron" which
-                    is able to make coffee based on real time voice input.
-                    Raspberry Pi and Nespresso Mini Coffee Machine are the main
-                    hardware parts of the system. Snowboy is the main software
-                    for hotword detection of the system.
+                    The goal of this project is to build a voice-controlled
+                    coffee machine "Aron" which is able to make coffee based on
+                    real time voice input. Our system is a 3D printed module
+                    that fits on top of the Nespresso Essenza Mini coffee
+                    machine. The Raspberry Pi listens for key words and phrases
+                    to actuate a servo accordingly to control the buttons on the
+                    coffee machine.
                   </h4>
                 </td>
               </tr>
@@ -105,8 +110,8 @@
             Although this is our ideal device, we would like our project to
             work on similar devices as well. We print an add-on holder that fits
             on top of the Espresso Maker that can press the buttons. This add-on
-            fits snugly over the top of the machine, and comes with the
-            appropriate mechanisms to use the device.
+            fits snugly over the top of the machine with the foam pads. Velcro
+            is attached to the top to secure the Pi.
           </p>
         </div>
       </div>
@@ -131,44 +136,118 @@
     </header>
     <div class="container">
       <div class="row mt-4">
-        <div class="col-md-4">
-          <img class="img-rounded" src="img/snowboy_1.png" alt="software design" width="240" height="240" />
-        </div>
-        <div class="col-md-8">
-          <h2>Snowboy</h2>
+        <div class="col-md-12">
+          <h2>Overview</h2>
           <p>
-            We use Snowboy Hotword Detection powered by Kitt.ai to
-            implement hotword recognition. Hotword recognition differs slightly
-            from speech recognition because the recognizer must constantly be
-            listening for the hotword. The Snowboy Hotword Detection framework
-            allows us to recognize hotwords on the Raspberry Pi - no internet
-            connection necessary. Since their software is proprietary, we must
-            train our own hotwords on their website online.
+            Our software is split into two stages: training and execution. In
+            the training stage, we train our hotword through an online API, and
+            also our phrase detection using frequency analysis and machine
+            learning. We load the models we create in the execution stage. First
+            the hotword detection is constantly listening. When a hotword is
+            detected, the phrase detection starts to classify a command.
+            Finally the command is sent to an actuation script to active the
+            servo appropriately.
           </p>
         </div>
       </div>
       <div class="row mt-4">
-        <div class="col-md-12">
-          <h2>Speech Detection</h2>
+        <div class="col-md-4">
+          <img class="img-rounded" src="img/snowboy_1.png" alt="software design" width="240" height="240" />
+        </div>
+        <div class="col-md-8">
+          <h2>Hotword Training and Detection</h2>
           <p>
-            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
-            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
-            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
-            nibh, ut fermentum massa justo sit amet risus.
+            We use Snowboy Hotword Detection from Kitt.ai to implement hotword
+            detection. Snowboy offers two types of models: universal and
+            personal models. Universal models require audio samples from
+            hundreds of different people. For this reason, there only exists
+            universal models for a few words, such as "Snowboy" and "Alexa".
+            Personal models only require 3 audio samples, but are trained only
+            for a single person. Using personal models we can train arbitrary
+            phrases or words, but it will only recognize one person's voice.
           </p>
+          <p>
+            Snowboy's Hotword Detection framework is useful because it provides
+            a hotword detector comparable to that of Google or Microsoft, yet
+            runs completely offline on a Raspberry Pi. However, since the
+            software is proprietary, we are required to use their API to train
+            the personal model. To train, we submit three 16 kHz, single
+            channel, 16-bit signed PCM wave files, encoded in base64 to their
+            training endpoint. The code for this can be found in
+            "train-snowboy.py".
+          </p>
+          <p>
+            On execution, the python script opens up the microphone and sends
+            the raw PCM data to the precompiled Snowboy binary. The sampling
+            rate, number of channels and data format must match that which we
+            used in training (Snowboy supports a couple other formats, but that
+            is probably the more common one). A successful detection will
+            trigger a asychronous call that writes the string "HOTWORD".
+          </p>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-8">
+          <h2>Phrase Training and Detection</h2>
+          <p>
+            We implement phrase detection with machine learning over the
+            frequency bins of each phrase we wanted to detect. The coffee
+            machine has two sizes of coffee, "espresso" and "large". Thus, we
+            aimed to train on these two words, plus the word "cancel" to cancel
+            the previous command.
+          </p>
+          <p>
+            First, we record ourselves saying the word over and over again, with
+            about 1 second of silence between each word. Our target output is
+            44.1 kHz, single channel PCM wave files. In the first training step,
+            we parse the wave file and separates it into individual utterances,
+            separated by the silences. Silences are based on a threshold and
+            an amplitude. We run the FFT with a bin size of 1024 over individual
+            utterances, crop out the human vocal range (100 Hz - 3000 Hz),
+            normalize the values, and save these arrays for the training script.
+          </p>
+          <p>
+            In the training script, we read all the labelled arrays of
+            individual utterance frequencies, and run a multi-class logistic
+            classifier with SciPy. Using cross-validation techniques, we
+            recorded an accuracy of 100% with 20-30 samples. In hindsight, these
+            recordings were all done in a silent room, at the same volume, which
+            might have made it poor training data for regular use. The
+            classifier produced an object which we could serialize.
+          </p>
+          <p>
+            During execution, our python script first loads the classifier
+            model we trained, and then waits for the input "HOTWORD". When
+            triggered, we listen to the microphone until we hear an utterance
+            and 0.5 seconds of silence, or up to 3 seconds total. We apply the
+            FFT over this audio data using the same bin size and clipping
+            parameters. The final array is fed into the classifier to produce
+            a command. We output this command to the last part of our software.
+          </p>
+        </div>
+        <div class="col-md-4">
+            <img class="img-rounded" src="img/cancel-1.sum.png" alt="Cancel" width="320" />
+            <img class="img-rounded" src="img/espresso-1.sum.png" alt="Cancel" width="320" />
+            <img class="img-rounded" src="img/large-1.sum.png" alt="Cancel" width="320" />
         </div>
       </div>
       <div class="row mt-4">
         <div class="col-md-12">
           <h2>Actuation</h2>
           <p>
-            All our actuators are binary actuators (must be in one of two
-            states), which means other than firing the actuators in the
-            correct order, we do not need any precise timing, since the
-            Raspberry Pi offers hardware PWM. Therefore, we use Python
-            and the standard RPi.GPIO library to perform actuation of the
-            device. We implement some error checking and safety features in
-            this program to protect the servo.
+            The servo is situated in between the two buttons. We hold the servo
+            in one of three states: left, right and center. In the center, both
+            buttons are unpressed. Left activates the espresso size coffee.
+            Right activates large size coffee. The left and right buttons are
+            held down for one second before returning to the center.
+          </p>
+          <p>
+            The servo is connected to a hardware PWM pin on the Pi. We use the
+            RPi.GPIO library to control the angle and state of the servo. The
+            actuation script waits for a command, either 0, 1 or 2,
+            corresponding to the three commands we trained. After some error
+            checking (e.g. we cannot cancel if the coffee is done), we translate
+            these to PWM commands.
           </p>
         </div>
       </div>
@@ -176,53 +255,52 @@
         <div class="col-md-12">
           <h2>Communication</h2>
           <p>
-            The Hotword detection program and Actuation program communicate
-            through a FIFO queue. As in Lab 3, we have a script to setup and
-            start the two programs in the background. This script executes on
-            boot.
+            The hotword detection, phrase detection and actuation scripts
+            communicate through FIFO queues. We have a script to setup and start
+            the three programs in the background. This script executes on boot.
           </p>
         </div>
       </div>
     </div>
     <hr />
-    <header class="anchor" id="gallary">
-      <h1>Gallary</h1>
+    <header class="anchor" id="gallery">
+      <h1>Gallery</h1>
     </header>
     <div class="container">
       <div class="row mt-4">
         <div class="col-md-3">
-          <img class="img-rounded" src="img/mic_1.jpg" alt="gallary image" width="240" height="240" />
+          <img class="img-rounded" src="img/mic_1.jpg" alt="gallery image" width="240" height="240" />
         </div>
         <div class="col-md-3">
-          <img class="img-rounded" src="img/mic_4.jpg" alt="gallary image" width="240" height="240" />
+          <img class="img-rounded" src="img/mic_4.jpg" alt="gallery image" width="240" height="240" />
         </div>
         <div class="col-md-3">
-          <img class="img-rounded" src="img/add_on_2.jpg" alt="gallary image" width="240" height="240" />
+          <img class="img-rounded" src="img/add_on_2.jpg" alt="gallery image" width="240" height="240" />
         </div>
         <div class="col-md-3">
-          <img class="img-rounded" src="img/board_2.jpg" alt="gallary image" width="240" height="240" />
-        </div>
-      </div>
-      <div class="row mt-5">
-        <div class="col-md-3">
-          <img class="img-rounded" src="img/board_3.jpg" alt="gallary image" width="240" height="240" />
-        </div>
-        <div class="col-md-3">
-          <img class="img-rounded" src="img/board_4.jpg" alt="gallary image" width="240" height="240" />
-        </div>
-        <div class="col-md-3">
-          <img class="img-rounded" src="img/cm_1.jpg" alt="gallary image" width="240" height="240" />
-        </div>
-        <div class="col-md-3">
-          <img class="img-rounded" src="img/cm_2.jpg" alt="gallary image" width="240" height="240" />
+          <img class="img-rounded" src="img/board_2.jpg" alt="gallery image" width="240" height="240" />
         </div>
       </div>
       <div class="row mt-5">
         <div class="col-md-3">
-          <img class="img-rounded" src="img/cm_4.jpg" alt="gallary image" width="240" height="240" />
+          <img class="img-rounded" src="img/board_3.jpg" alt="gallery image" width="240" height="240" />
         </div>
         <div class="col-md-3">
-          <img class="img-rounded" src="img/cm_5.jpg" alt="gallary image" width="240" height="240" />
+          <img class="img-rounded" src="img/board_4.jpg" alt="gallery image" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/cm_1.jpg" alt="gallery image" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/cm_2.jpg" alt="gallery image" width="240" height="240" />
+        </div>
+      </div>
+      <div class="row mt-5">
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/cm_4.jpg" alt="gallery image" width="240" height="240" />
+        </div>
+        <div class="col-md-3">
+          <img class="img-rounded" src="img/cm_5.jpg" alt="gallery image" width="240" height="240" />
         </div>
       </div>
     </div>
@@ -261,32 +339,37 @@
       </div>
     </div>
     <hr />
+    <header class="anchor" id="bill">
+      <h1>Bill of Materials</h1>
+    </header>
+    <div class="container">
+      <table align="center">
+        <tr><th style="width: 320px">Part</th><th>Price</th></tr>
+        <tr><td>Raspberry Pi 3 Model B</td><td>$34.49</td></tr>
+        <tr><td>Velcro Strips 3.5" x 0.75"</td><td>$2.48</td></tr>
+        <tr><td>TowerPro SG90 Servos</td><td>$6.49</td></tr>
+        <tr><td>USB Microphone Dongle</td><td>$4.35</td></tr>
+        <tr><td>PS3 Eye (temporary)</td><td>$7.93</td></tr>
+        <tr><td>3D Printed Add-On</td><td>~</td></tr>
+        <tr><td>Foam</td><td>~</td></tr>
+        <tr><td>Glue</td><td>~</td></tr>
+      </table>
+    </div>
+    <hr />
     <header class="anchor" id="info">
       <h1>Contact Info</h1>
     </header>
     <div class="container">
       <div class="row">
         <div class="col-md-6 text-center">
-          <img class="img-rounded" src="img/ph1.jpg" alt="hardware design" width="240" height="240" />
+          <img class="img-rounded" src="img/scott.png" alt="hardware design" width="240" height="240" />
           <h3>Scott Wu</h3>
           <h4>ssw74</h4>
-          <p>
-            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
-            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
-            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
-            nibh, ut fermentum massa justo sit amet risus.
-          </p>
         </div>
         <div class="col-md-6 text-center">
           <img class="img-rounded" src="img/charles.jpg" alt="charles photo" width="240" height="240" />
           <h3>Charles Bai</h3>
           <h4>cb674</h4>
-          <p>
-            Donec sed odio dui. Cras justo odio, dapibus ac facilisis in,
-            egestas eget quam. Vestibulum id ligula porta felis euismod semper.
-            Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
-            nibh, ut fermentum massa justo sit amet risus.
-          </p>
         </div>
       </div>
     </div>
